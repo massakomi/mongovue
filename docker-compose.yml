@@ -1,0 +1,52 @@
+networks:
+  backend:
+
+services:
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: mongo-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./public:/var/www/public
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/logs:/var/log/nginx/
+    depends_on:
+      - php
+      - mongo
+    environment:
+      TZ: Europe/Moscow
+    networks:
+      - backend
+
+  php:
+    build:
+      context: docker/php
+      dockerfile: Dockerfile
+      args:
+        DOCKER_PHP_VERSION: '8.0'
+        TZ: Europe/Moscow
+    working_dir: /var/www
+    container_name: mongo-php
+    volumes:
+      - ./public:/var/www/public
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "9006:9000"
+    networks:
+      - backend
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./docker/mongo/db:/data/db
+      - ./docker/mongo/configdb:/data/configdb
+    environment:
+      TZ: Europe/Moscow
+    networks:
+      - backend
+

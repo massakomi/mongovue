@@ -1,0 +1,5 @@
+/public/vendor
+/docker/mongo/db
+!/docker/mongo/db/.gitkeep
+/.idea
+/docker/nginx/logs/*.log

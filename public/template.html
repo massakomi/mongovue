@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mongo Vue</title>
+    <script src="vue3.global.prod.js"></script>
+</head>
+<body>
+
+<main id="app">
+
+<h2>
+    Список баз данных
+    <a href="#" @click="addDatabase">add</a>
+</h2>
+<ul>
+    <li v-for="item of databases">
+        <a href="#" @click.prevent="selectDatabase(item.name)">{{ item.name }}</a>
+        <span style="color: #ccc; margin-left: 5px;">{{ item.sizeFormatted }}{{ item.isEmpty ? 'empty' : '' }}</span>
+        <a href="#" @click.prevent="dropDatabase(item.name)">drop</a>
+    </li>
+</ul>
+
+<template v-if="dbName">
+    <h3>
+        База данных {{dbName}} - коллекции
+        <a href="#" @click.prevent="addCollection">добавить</a>
+    </h3>
+    <ul>
+        <li v-for="item of collections">
+            <a :href="'?db='+dbName+'&collection='+item.name">{{item.name}}</a> &nbsp;
+            <a href="#" @click.prevent="dropCollection(item.name)">drop</a> &nbsp;
+            <a href="#" @click.prevent="renameCollection(item.name)">rename</a>
+        </li>
+    </ul>
+</template>
+
+</main>
+
+<script type="text/javascript">
+  const Mongo = {
+    data() {
+      return {
+        databases: [],
+        dbName: false,
+        collections: [],
+        collectionName: false,
+      }
+    },
+    methods: {
+      query: (app, query='') => {
+        fetch(app.url(app) + query)
+          .then(response => response.ok ? response.json() : Promise.reject(response))
+          .then(data => {
+            console.log(data)
+            app.databases = data.databases
+            app.collections = data.collections
+          });
+      },
+      url: (app) => {
+        let url ='?get=1'
+        if (app.dbName) {
+          url += '&db=' + app.dbName
+        }
+        return url
+      },
+      renameCollection: function (name) {
+        let newName = prompt('Новое имя коллекции', name);
+        if (!newName || typeof newName == 'undefined') {
+          return false;
+        }
+        this.collectionName = newName
+        this.query(this, `&renameCollection=${name}&newname=${newName}`)
+      },
+      selectDatabase: function (name) {
+        this.dbName = name
+        history.pushState({}, '', `?db=${name}`);
+        this.query(this)
+      },
+      dropDatabase: function (name) {
+        this.query(this, `&dropDb=${name}`)
+      },
+      addDatabase: function () {
+        let newDb = prompt('Имя базы');
+        if (!newDb || typeof newDb == 'undefined') {
+          return false;
+        }
+        this.dbName = newDb
+        this.addCollection()
+      },
+      dropCollection: function (name) {
+        this.query(this, `&dropCollection=${name}`)
+      },
+      addCollection: function () {
+        let collection = prompt('Имя коллекции', 'empty');
+        if (!collection || typeof collection == 'undefined') {
+          return false;
+        }
+        this.collectionName = collection
+        this.query(this, `&add=${collection}`)
+      },
+      loadFromGet: function() {
+        if (!this.dbName) {
+          let db = new URL(location.href).searchParams.get('db');
+          if (db) {
+            this.dbName = db;
+          }
+        }
+      }
+    },
+    mounted() {
+      this.loadFromGet()
+      this.query(this)
+    }
+  }
+  Vue.createApp(Mongo).mount('#app')
+</script>
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+    "require": {
+        "mongodb/mongodb": "*",
+        "ext-json": "*",
+        "ext-mongodb": "*"
+    }
+}
