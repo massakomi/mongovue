@@ -22,7 +22,7 @@ if ($operation -eq '2')
 
 if ($operation -eq '3')
 {
-    docker compose up -d # � �������� ��������
+    docker compose up -d
 }
 
 if ($operation -eq '4')

@@ -1,7 +1,22 @@
 {
-    "require": {
-        "mongodb/mongodb": "*",
-        "ext-json": "*",
-        "ext-mongodb": "*"
+  "name": "massakomi/mongovue",
+  "description": "MongoDB manager",
+  "type": "project",
+  "license": "free",
+  "autoload": {
+    "psr-4": {
+      "": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "Andrew Ogibin"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "mongodb/mongodb": "*",
+    "ext-json": "*",
+    "ext-mongodb": "*"
+  }
 }
